@@ -292,23 +292,23 @@ class TaskManager {
         switch (taskToDeleteState) {
             case "Backlog":
                 container = HTML_CONTAINER_BACKLOG;
-                list = this.#BACKLOG;
+                list = this.BACKLOG;
                 break;
             case "To Do":
                 container = HTML_CONTAINER_TO_DO;
-                list = this.#TO_DO;
+                list = this.TO_DO;
                 break;
             case "In Progress":
                 container = HTML_CONTAINER_IN_PROGRESS;
-                list = this.#IN_PROGRESS;
+                list = this.IN_PROGRESS;
                 break;
             case "Blocked":
                 container = HTML_CONTAINER_BLOCKED;
-                list = this.#BLOCKED;
+                list = this.BLOCKED;
                 break;
             case "Done":
                 container = HTML_CONTAINER_DONE;
-                list = this.#DONE;
+                list = this.DONE;
                 break;
         }
         container.removeChild(this.#TASK_TO_EDIT.HTMLCard);
@@ -318,6 +318,9 @@ class TaskManager {
                 return;
             }
         });
+
+        storageManager.writeStorage(taskToDeleteState,list);
+
         this.#TASK_TO_EDIT = null;
         this.#TASK_TO_EDIT_STATE = null;
     };
@@ -340,23 +343,23 @@ class TaskManager {
             switch (taskToMoveOldState) {
                 case "Backlog":
                     oldContainer = HTML_CONTAINER_BACKLOG;
-                    oldList = this.#BACKLOG;
+                    oldList = this.BACKLOG;
                     break;
                 case "To Do":
                     oldContainer = HTML_CONTAINER_TO_DO;
-                    oldList = this.#TO_DO;
+                    oldList = this.TO_DO;
                     break;
                 case "In Progress":
                     oldContainer = HTML_CONTAINER_IN_PROGRESS;
-                    oldList = this.#IN_PROGRESS;
+                    oldList = this.IN_PROGRESS;
                     break;
                 case "Blocked":
                     oldContainer = HTML_CONTAINER_BLOCKED;
-                    oldList = this.#BLOCKED;
+                    oldList = this.BLOCKED;
                     break;
                 case "Done":
                     oldContainer = HTML_CONTAINER_DONE;
-                    oldList = this.#DONE;
+                    oldList = this.DONE;
                     break;
             }
 
@@ -365,23 +368,23 @@ class TaskManager {
             switch (taskToMoveActualState) {
                 case "Backlog":
                     newContainer = HTML_CONTAINER_BACKLOG;
-                    newList = this.#BACKLOG;
+                    newList = this.BACKLOG;
                     break;
                 case "To Do":
                     newContainer = HTML_CONTAINER_TO_DO;
-                    newList = this.#TO_DO;
+                    newList = this.TO_DO;
                     break;
                 case "In Progress":
                     newContainer = HTML_CONTAINER_IN_PROGRESS;
-                    newList = this.#IN_PROGRESS;
+                    newList = this.IN_PROGRESS;
                     break;
                 case "Blocked":
                     newContainer = HTML_CONTAINER_BLOCKED;
-                    newList = this.#BLOCKED;
+                    newList = this.BLOCKED;
                     break;
                 case "Done":
                     newContainer = HTML_CONTAINER_DONE;
-                    newList = this.#DONE;
+                    newList = this.DONE;
                     break;
             }
 
@@ -391,6 +394,9 @@ class TaskManager {
                 }
             });
             newList.push(this.#TASK_TO_EDIT);
+
+            storageManager.writeStorage(taskToMoveOldState,oldList);
+            storageManager.writeStorage(taskToMoveActualState,newList);
 
             oldContainer.removeChild(this.#TASK_TO_EDIT.HTMLCard);
             newContainer.appendChild(this.#TASK_TO_EDIT.HTMLCard);
@@ -463,7 +469,7 @@ class storageManager {
                 task.description = element.description
                 task.assigned = element.assigned;
                 task.priority = element.priority;
-                task.limitDate = Date(element.limitDate);
+                task.limitDate = element.limitDate;
                 task.state = key;
 
                 task.updateHTMLCard();
@@ -485,7 +491,6 @@ class storageManager {
             stringList.push(stringTask);
         });
         const treated = JSON.stringify(stringList);
-        const untreated = JSON.parse(treated);
         sessionStorage.setItem(key, treated);
     }
 
