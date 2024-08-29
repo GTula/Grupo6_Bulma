@@ -94,7 +94,7 @@ class Task {
         this.#HTMLCard.appendChild(this.#HTMLLimitDate);
 
         // Actualiza el contenido de la tarjeta.
-        this.#updateHTMLCard();
+        this.updateHTMLCard();
 
         const task = this;
         // Se le asigna un event listener.
@@ -108,28 +108,56 @@ class Task {
         return this.#id;
     }
 
+    set id(val){
+        this.#id = val;
+    }
+
     get title() {
         return this.#title;
+    }
+
+    set title(val) {
+        this.#title = val;
     }
 
     get description() {
         return this.#description;
     }
 
+    set description(val) {
+        this.#description = val;
+    }
+
     get assigned() {
         return this.#assigned;
+    }
+
+    set assigned(val) {
+        this.#assigned = val;
     }
 
     get priority() {
         return this.#priority;
     }
 
+    set priority(val) {
+        this.#priority = val;
+    }
+
     get limitDate() {
         return this.#limitDate;
     }
 
+    set limitDate(val) {
+        this.#limitDate = val;
+    }
+
     get state() {
         return this.#state;
+    }
+
+    set state(val) {
+        this.#state = val;
     }
 
     get HTMLCard() {
@@ -145,11 +173,11 @@ class Task {
         this.#limitDate = HTML_TASK_MODAL_INPUT_LIMIT_DATE.value;
         this.#state = HTML_TASK_MODAL_INPUT_STATE.value;
 
-        this.#updateHTMLCard();
+        this.updateHTMLCard();
     }
 
     // Actualiza sólo la tarjeta HTML.
-    #updateHTMLCard() {
+    updateHTMLCard() {
         this.#HTMLCard.id = `${this.#state}-${this.#id}`;
 
         this.#HTMLTitle.innerHTML = this.#title;
@@ -184,11 +212,31 @@ class TaskManager {
     static #TASK_TO_EDIT_STATE;
 
     // Listas que guardan las tareas.
-    static #BACKLOG = [];
-    static #TO_DO = [];
-    static #IN_PROGRESS = [];
-    static #BLOCKED = [];
-    static #DONE = [];
+    static #BACKLOG;
+    static #TO_DO;
+    static #IN_PROGRESS;
+    static #BLOCKED;
+    static #DONE;
+
+    get BACKLOG() {
+        return this.BACKLOG;
+    }
+
+    get TO_DO() {
+        return this.TO_DO;
+    }
+
+    get IN_PROGRESS() {
+        return this.IN_PROGRESS;
+    }
+
+    get BLOCKED() {
+        return this.BLOCKED;
+    }
+
+    get DONE() {
+        return this.DONE;
+    }
 
     static get GET_TASK_TO_EDIT() {
         return this.#TASK_TO_EDIT;
@@ -210,27 +258,28 @@ class TaskManager {
         switch (newTaskState) {
             case "Backlog":
                 container = HTML_CONTAINER_BACKLOG;
-                list = this.#BACKLOG;
+                list = this.BACKLOG;
                 break;
             case "To Do":
                 container = HTML_CONTAINER_TO_DO;
-                list = this.#TO_DO;
+                list = this.TO_DO;
                 break;
             case "In Progress":
                 container = HTML_CONTAINER_IN_PROGRESS;
-                list = this.#IN_PROGRESS;
+                list = this.IN_PROGRESS;
                 break;
             case "Blocked":
                 container = HTML_CONTAINER_BLOCKED;
-                list = this.#BLOCKED;
+                list = this.BLOCKED;
                 break;
             case "Done":
                 container = HTML_CONTAINER_DONE;
-                list = this.#DONE;
+                list = this.DONE;
                 break;
         }
         list.push(newTask);
         container.appendChild(newTask.HTMLCard);
+        storageManager.writeStorage(newTaskState, list);
     };
 
     // Elimina la tarea a editar de backend y de frontend.
@@ -349,6 +398,100 @@ class TaskManager {
     }
 }
 
+// ***Clase StorageManager
+// Función: Prepara listado de tareas, controla acceso a memoria de navegador y su update.
+class storageManager {
+
+    //Setup de las listas de tareas del task manager
+    static setupStorage() {
+        TaskManager.BACKLOG = [];
+        TaskManager.TO_DO = [];
+        TaskManager.IN_PROGRESS = [];
+        TaskManager.BLOCKED = [];
+        TaskManager.DONE = [];
+        //sessionStorage.clear();
+        if (!(sessionStorage.length === 0)) {
+            this.readStorage('Backlog');
+            this.readStorage('To Do');
+            this.readStorage('In Progress');
+            this.readStorage('Blocked');
+            this.readStorage('Done');
+        } else {
+            sessionStorage.setItem('Backlog', JSON.stringify([]));
+            sessionStorage.setItem('To Do', JSON.stringify([]));
+            sessionStorage.setItem('In Progress', JSON.stringify([]));
+            sessionStorage.setItem('Blocked', JSON.stringify([]));
+            sessionStorage.setItem('Done', JSON.stringify([]));
+        }
+    }
+
+    //Cargado de tareas desde una lista guardada en session storage
+    static readStorage(key) {
+        const objectList = JSON.parse(sessionStorage.getItem(key));
+        let container;
+        let list;
+        switch (key) {
+            case "Backlog":
+                container = HTML_CONTAINER_BACKLOG;
+                list = TaskManager.BACKLOG;
+                break;
+            case "To Do":
+                container = HTML_CONTAINER_TO_DO;
+                list = TaskManager.TO_DO;
+                break;
+            case "In Progress":
+                container = HTML_CONTAINER_IN_PROGRESS;
+                list = TaskManager.IN_PROGRESS;
+                break;
+            case "Blocked":
+                container = HTML_CONTAINER_BLOCKED;
+                list = TaskManager.BLOCKED;
+                break;
+            case "Done":
+                container = HTML_CONTAINER_DONE;
+                list = TaskManager.DONE;
+                break;
+        }
+
+        if (objectList.length === 0) {
+            list = [];
+        } else {
+            objectList.forEach(element => {
+                const task = new Task()
+                task.id = element.id;
+                task.title = element.title;
+                task.description = element.description
+                task.assigned = element.assigned;
+                task.priority = element.priority;
+                task.limitDate = Date(element.limitDate);
+                task.state = key;
+
+                task.updateHTMLCard();
+                list.push(task);
+                container.appendChild(task.HTMLCard);
+            });
+        }
+    }
+
+    //Guardado de una lista de tareas al session storage
+    static writeStorage(key, data) {
+        const stringList = [];
+        data.forEach(task => {
+            let stringTask = {
+                id: `${task.id}`, title: `${task.title}`, description: `${task.description}`,
+                assigned: `${task.assigned}`, priority: `${task.priority}`, limitDate: `${task.limitDate}`,
+                state: `${task.state}`
+            }
+            stringList.push(stringTask);
+        });
+        const treated = JSON.stringify(stringList);
+        const untreated = JSON.parse(treated);
+        sessionStorage.setItem(key, treated);
+    }
+
+}
+// LLAMADOS INICIALIZADORES
+storageManager.setupStorage();
 //------------------------------------------------------------------------------------------------------------------------
 // *** EVENTOS ***
 
@@ -473,3 +616,5 @@ HTML_CHANGE_TASK_MODAL_BUTTON_DELETE_TASK.addEventListener("click", function (ev
     showPrincipalPage();
     cleanInputs();
 });
+
+
