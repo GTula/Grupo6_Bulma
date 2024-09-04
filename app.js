@@ -542,7 +542,12 @@ class LocalStorageManager {
 
     // Carga la ID de la clase Task del Local Storage.
     static loadIdOfTaskClassFromStorage() {
-        Task.ID = parseInt(localStorage.getItem("TASK_CLASS_ID"));
+        const value = Task.ID = parseInt(localStorage.getItem("TASK_CLASS_ID"));
+        if (isNaN(value)) {
+            Task.ID = 0;
+        } else {
+            Task.ID = value;
+        }
     }
 }
 // #endregion
