@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="bulma/css/bulma.min.css">
-    <link rel="stylesheet" href="icons/css/all.min.css">
+    <link rel="stylesheet" href="assets/bulma/css/bulma.min.css">
+    <link rel="stylesheet" href="assets/icons/css/all.min.css">
 
     <!-- Estilos. -->
     <link rel="stylesheet" href="styles/global-style.css">
@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="styles/dark-mode.css">
 
     <!-- Script JS. -->
-    <script src="app.js" defer></script>
+    <script type="module" src="src/app.js" defer></script>
 </head>
 
 <!-- Maquetación con metodología BEM (Block__Element--Modifier). -->
@@ -156,27 +156,23 @@
             <!-- Asignado. -->
             <div class="task-form__input">
                 <label>Asignado</label>
-                <select id="assigned">
-                    <option>Amelia</option>
-                    <option>Marco</option>
-                    <option>Polo</option>
-                </select>
+                <input id="assigned-to" type="text" placeholder="ASIGNADO">
             </div>
 
             <!-- Prioridad. -->
             <div class="task-form__input">
                 <label>Prioridad</label>
                 <select id="priority">
-                    <option>Alta</option>
-                    <option>Media</option>
-                    <option>Baja</option>
+                    <option>High</option>
+                    <option>Medium</option>
+                    <option>Low</option>
                 </select>
             </div>
 
             <!-- Estado. -->
             <div class="task-form__input">
                 <label>Estado</label>
-                <select id="state">
+                <select id="status">
                     <option>Backlog</option>
                     <option>To Do</option>
                     <option>In Progress</option>
@@ -188,7 +184,7 @@
             <!-- Fecha límite. -->
             <div class="task-form__input">
                 <label>Fecha límite</label>
-                <input id="limit-date" type="date" placeholder="FECHA LÍMITE">
+                <input id="end-date" type="date" placeholder="FECHA LÍMITE">
             </div>
 
             <!-- Botones. -->
